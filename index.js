@@ -4,58 +4,95 @@ const equals = document.querySelector(".equals");
 const decimal = document.querySelector(".decimal");
 const clear = document.querySelector(".clear");
 const backspace = document.querySelector(".delete");
-const screenValue = document.querySelector(".value");
-screenValue.textContent = "0";
+const operation = document.querySelector(".operation");
+const screen = document.querySelector(".value");
+screen.textContent = "0";
+clear.textContent = "ac";
 
 let resetScreen = false;
 let number1 = "";
 let number2 = "";
 let operator = "";
 
-function screen(e) {
-  if (screenValue.textContent == "0" || resetScreen) emptyScreen();
-  screenValue.textContent += e.target.textContent;
+function appendNumber(e) {
+  if (screen.textContent == "0" || resetScreen) emptyScreen();
+  screen.textContent += e.target.textContent;
+  acSwitch();
 }
 
 function emptyScreen() {
   resetScreen = false;
-  screenValue.textContent = "";
+  screen.textContent = "";
 }
 
-function addDecimal(e) {
-  if (screenValue.textContent.includes(".")) return;
-  screenValue.textContent += e.target.textContent;
+function appendDecimal(e) {
+  if (screen.textContent.includes(".")) return;
+  screen.textContent += e.target.textContent;
   resetScreen = false;
 }
 
-function removeLastCharacter() {
-  if (screenValue.textContent == "0") return;
-  else if (screenValue.textContent.length === 1) {
-    return (screenValue.textContent = "0");
+function removeLast() {
+  if (screen.textContent == "0") return;
+  else if (screen.textContent.length === 1) {
+    screen.textContent = "0";
+    resetScreen = true;
+    return acSwitch();
   }
-  screenValue.textContent = screenValue.textContent.slice(0, -1);
+  screen.textContent = screen.textContent.slice(0, -1);
 }
 
 function clean() {
-  screenValue.textContent = "0";
-  number1 = "";
-  number2 = "";
-  operator = "";
-  resetScreen = false;
+  if (screen.textContent != "0") {
+    operation.textContent = `ans = ${screen.textContent}`;
+    screen.textContent = "0";
+    acSwitch();
+    return;
+  } else {
+    number1 = "";
+    number2 = "";
+    operator = "";
+  }
+}
+
+function acSwitch() {
+  if (resetScreen) {
+    clear.textContent = "ac";
+    clear.removeEventListener("click", removeLast);
+    clear.addEventListener("click", clean);
+    return;
+  } else if (resetScreen === false) {
+    clear.textContent = "ce";
+    clear.removeEventListener("click", clean);
+    clear.addEventListener("click", removeLast);
+    return;
+  }
 }
 
 function setOperator(e) {
   if (operator !== "") evaluate();
-  number1 = screenValue.textContent;
+  number1 = screen.textContent;
   operator = e.target.textContent;
   resetScreen = true;
+  operation.textContent = `${number1} ${operator}`;
+}
+
+function round(numberToRound) {
+  return Math.round(numberToRound * 1000) / 1000;
 }
 
 function evaluate() {
   if (operator == "" || resetScreen) return;
-  number2 = screenValue.textContent;
-  screenValue.textContent = operate(number1, operator, number2);
+  if (operator == "÷" && screen.textContent == "0") {
+    resetScreen = true;
+    acSwitch();
+    return (screen.textContent = "dumbass");
+  }
+  number2 = screen.textContent;
+  screen.textContent = round(operate(number1, operator, number2));
+  operation.textContent = `${number1} ${operator} ${number2} =`;
   operator = "";
+  resetScreen = true;
+  acSwitch();
 }
 
 function operate(n1, operator, n2) {
@@ -63,9 +100,9 @@ function operate(n1, operator, n2) {
   n2 = Number(number2);
   if (operator === "+") {
     return add(n1, n2);
-  } else if (operator === "-") {
+  } else if (operator === "−") {
     return substract(n1, n2);
-  } else if (operator === "x") {
+  } else if (operator === "×") {
     return multiply(n1, n2);
   } else if (operator === "÷") {
     return divide(n1, n2);
@@ -84,13 +121,12 @@ function divide(n1, n2) {
   return n1 / n2;
 }
 
+equals.addEventListener("click", evaluate);
+decimal.addEventListener("click", (e) => appendDecimal(e));
+clear.addEventListener("click", clean);
 numberButtons.forEach((numberButton) => {
-  numberButton.addEventListener("click", (e) => screen(e));
+  numberButton.addEventListener("click", (e) => appendNumber(e));
 });
 operatorButtons.forEach((operatorButton) => {
   operatorButton.addEventListener("click", (e) => setOperator(e));
 });
-equals.addEventListener("click", evaluate);
-decimal.addEventListener("click", (e) => addDecimal(e));
-clear.addEventListener("click", clean);
-backspace.addEventListener("click", removeLastCharacter);
