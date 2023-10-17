@@ -9,7 +9,7 @@ const screen = document.querySelector(".value");
 screen.textContent = "0";
 clear.textContent = "ac";
 
-let resetScreen = false;
+let resetScreen = true;
 let number1 = "";
 let number2 = "";
 let operator = "";
@@ -29,11 +29,11 @@ function appendDecimal(e) {
   if (screen.textContent.includes(".")) return;
   screen.textContent += e.target.textContent;
   resetScreen = false;
+  acSwitch();
 }
 
 function removeLast() {
-  if (screen.textContent == "0") return;
-  else if (screen.textContent.length === 1) {
+  if (screen.textContent.length === 1 || screen.textContent == "0.") {
     screen.textContent = "0";
     resetScreen = true;
     return acSwitch();
@@ -42,16 +42,13 @@ function removeLast() {
 }
 
 function clean() {
-  if (screen.textContent != "0") {
-    operation.textContent = `ans = ${screen.textContent}`;
-    screen.textContent = "0";
-    acSwitch();
-    return;
-  } else {
-    number1 = "";
-    number2 = "";
-    operator = "";
-  }
+  if (resetScreen) return;
+  operation.textContent = `ans = ${screen.textContent}`;
+  screen.textContent = "0";
+  acSwitch();
+  number1 = "";
+  number2 = "";
+  operator = "";
 }
 
 function acSwitch() {
