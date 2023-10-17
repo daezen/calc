@@ -14,15 +14,15 @@ let number1 = "";
 let number2 = "";
 let operator = "";
 
+function emptyScreen() {
+  resetScreen = false;
+  screen.textContent = "";
+}
+
 function appendNumber(e) {
   if (screen.textContent == "0" || resetScreen) emptyScreen();
   screen.textContent += e.target.textContent;
   acSwitch();
-}
-
-function emptyScreen() {
-  resetScreen = false;
-  screen.textContent = "";
 }
 
 function appendDecimal(e) {
