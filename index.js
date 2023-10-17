@@ -42,10 +42,11 @@ function removeLast() {
 }
 
 function clean() {
-  if (resetScreen) return;
-  operation.textContent = `ans = ${screen.textContent}`;
-  screen.textContent = "0";
-  acSwitch();
+  if (screen.textContent != "0" && number2 != "") {
+    operation.textContent = `ans = ${screen.textContent}`;
+    return (screen.textContent = "0");
+  }
+  operation.textContent = "";
   number1 = "";
   number2 = "";
   operator = "";
@@ -69,8 +70,9 @@ function setOperator(e) {
   if (operator !== "") evaluate();
   number1 = screen.textContent;
   operator = e.target.textContent;
-  resetScreen = true;
   operation.textContent = `${number1} ${operator}`;
+  resetScreen = true;
+  acSwitch();
 }
 
 function round(numberToRound) {
