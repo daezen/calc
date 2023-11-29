@@ -1,131 +1,122 @@
-const numberButtons = document.querySelectorAll(".numbers");
-const operatorButtons = document.querySelectorAll(".operators");
-const equals = document.querySelector(".equals");
-const decimal = document.querySelector(".decimal");
-const clear = document.querySelector(".clear");
-const backspace = document.querySelector(".delete");
-const operation = document.querySelector(".operation");
-const screen = document.querySelector(".value");
-screen.textContent = "0";
-clear.textContent = "ac";
+const operator_buttons = document.querySelectorAll('[data-operator]')
+const number_buttons = document.querySelectorAll('[data-number]')
+const decimal_button = document.querySelector('[data-decimal]')
+const equal_button = document.querySelector('[data-equal]')
+const clear_button = document.querySelector('[data-clear]')
+const operation = document.querySelector('[data-last]')
+const screen = document.querySelector('[data-screen]')
+let isResetScreen = true
+let firstOperand = ''
+let isSaveAns = false
+let operator = ''
+let isAc = true
 
-let resetScreen = true;
-let number1 = "";
-let number2 = "";
-let operator = "";
-
-function emptyScreen() {
-  resetScreen = false;
-  screen.textContent = "";
+function resetScreen() {
+  if (isSaveAns) operation.textContent = `ans = ${screen.textContent}`
+  screen.textContent = ''
+  isSaveAns = false
+  isResetScreen = false
 }
 
 function appendNumber(e) {
-  if (screen.textContent == "0" || resetScreen) emptyScreen();
-  screen.textContent += e.target.textContent;
-  acSwitch();
+  if (e.target.dataset.number === '0' && screen.textContent === '0') return
+  if (isResetScreen) resetScreen()
+  screen.textContent += e.target.dataset.number
+
+  toggleAc(false)
 }
 
-function appendDecimal(e) {
-  if (screen.textContent.includes(".")) return;
-  screen.textContent += e.target.textContent;
-  resetScreen = false;
-  acSwitch();
+function appendDecimal() {
+  if (screen.textContent.includes('.')) return
+  screen.textContent += '.'
+
+  toggleAc(false)
+  isResetScreen = false
 }
 
-function removeLast() {
-  if (screen.textContent.length === 1 || screen.textContent == "0.") {
-    screen.textContent = "0";
-    resetScreen = true;
-    return acSwitch();
+function useAc() {
+  if (isSaveAns) operation.textContent = `ans = ${screen.textContent}`
+  else {
+    operation.textContent = ''
   }
-  screen.textContent = screen.textContent.slice(0, -1);
+  screen.textContent = '0'
+  firstOperand = ''
+  operator = ''
+  isSaveAns = false
+  isResetScreen = true
+  if (firstOperand) {
+    toggleAc(false)
+  }
 }
 
-function clean() {
-  if (screen.textContent != "0" && number2 != "") {
-    operation.textContent = `ans = ${screen.textContent}`;
-    return (screen.textContent = "0");
+function useCe() {
+  if (screen.textContent.length === 1 || screen.textContent === '0.') {
+    screen.textContent = '0'
+    toggleAc(true)
+    isResetScreen = true
+    return
   }
-  operation.textContent = "";
-  number1 = "";
-  number2 = "";
-  operator = "";
-}
 
-function acSwitch() {
-  if (resetScreen) {
-    clear.textContent = "ac";
-    clear.removeEventListener("click", removeLast);
-    clear.addEventListener("click", clean);
-    return;
-  } else if (resetScreen === false) {
-    clear.textContent = "ce";
-    clear.removeEventListener("click", clean);
-    clear.addEventListener("click", removeLast);
-    return;
-  }
+  screen.textContent = screen.textContent.slice(0, -1)
 }
 
 function setOperator(e) {
-  if (operator !== "") evaluate();
-  number1 = screen.textContent;
-  operator = e.target.textContent;
-  operation.textContent = `${number1} ${operator}`;
-  resetScreen = true;
-  acSwitch();
+  if (operator) handleEqual()
+
+  firstOperand = screen.textContent
+  operator = e.target.dataset.operator
+  operation.textContent = `${firstOperand} ${operator}`
+  screen.textContent = '0'
+  toggleAc(true)
+  isSaveAns = false
+  isResetScreen = true
 }
 
-function round(numberToRound) {
-  return Math.round(numberToRound * 1000) / 1000;
+function handleEqual() {
+  if (!operator) return
+
+  operation.textContent = `${firstOperand} ${operator} ${screen.textContent} =`
+  screen.textContent = round(operate(firstOperand, operator, screen.textContent))
+  firstOperand = ''
+  operator = ''
+  toggleAc(true)
+  isSaveAns = true
+  isResetScreen = true
 }
 
-function evaluate() {
-  if (operator == "" || resetScreen) return;
-  if (operator == "÷" && screen.textContent == "0") {
-    resetScreen = true;
-    acSwitch();
-    return (screen.textContent = "dumbass");
-  }
-  number2 = screen.textContent;
-  screen.textContent = round(operate(number1, operator, number2));
-  operation.textContent = `${number1} ${operator} ${number2} =`;
-  operator = "";
-  resetScreen = true;
-  acSwitch();
+const toggleAc = (ac) => {
+  clear_button.dataset.clear = ac ? 'ac' : 'ce'
+  clear_button.textContent = ac ? 'ac' : 'ce'
+  isAc = ac
+}
+
+function round(n) {
+  return Math.round(n * 100) / 100
 }
 
 function operate(n1, operator, n2) {
-  n1 = Number(number1);
-  n2 = Number(number2);
-  if (operator === "+") {
-    return add(n1, n2);
-  } else if (operator === "−") {
-    return substract(n1, n2);
-  } else if (operator === "×") {
-    return multiply(n1, n2);
-  } else if (operator === "÷") {
-    return divide(n1, n2);
-  }
-}
-function add(n1, n2) {
-  return n1 + n2;
-}
-function substract(n1, n2) {
-  return n1 - n2;
-}
-function multiply(n1, n2) {
-  return n1 * n2;
-}
-function divide(n1, n2) {
-  return n1 / n2;
+  n1 = Number(n1)
+  n2 = Number(n2)
+
+  return operand[operator](n1, n2)
 }
 
-equals.addEventListener("click", evaluate);
-decimal.addEventListener("click", (e) => appendDecimal(e));
-clear.addEventListener("click", clean);
-numberButtons.forEach((numberButton) => {
-  numberButton.addEventListener("click", (e) => appendNumber(e));
-});
-operatorButtons.forEach((operatorButton) => {
-  operatorButton.addEventListener("click", (e) => setOperator(e));
-});
+const operand = {
+  '+': (n1, n2) => n1 + n2,
+  '−': (n1, n2) => n1 - n2,
+  '×': (n1, n2) => n1 * n2,
+  '÷': (n1, n2) => n1 / n2,
+}
+
+number_buttons.forEach((button) => {
+  button.addEventListener('mousedown', appendNumber)
+})
+operator_buttons.forEach((button) => {
+  button.addEventListener('mousedown', setOperator)
+})
+decimal_button.addEventListener('mousedown', appendDecimal)
+equal_button.addEventListener('mousedown', handleEqual)
+clear_button.addEventListener('mousedown', () => {
+  if (isAc) useAc()
+  else useCe()
+})
