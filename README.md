@@ -3,4 +3,4 @@ This is a basic calculator program capable of performing addition, subtraction, 
 
 [Try it here!](https://angeldlg.github.io/calculator/)
 
-![Untitled](https://github.com/angeldlg/calculator/assets/44849133/7f95e127-dee1-4c86-ae47-f85ae8ac75d2)
+![calculator](https://github.com/angeldlg/calculator/assets/44849133/34142cb4-e1b2-4b73-a2c9-c30f51ca561a)
