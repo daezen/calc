@@ -9,7 +9,6 @@ let isResetScreen = true
 let firstOperand = ''
 let isSaveAns = false
 let operator = ''
-let isAc = true
 
 function resetScreen() {
   if (isSaveAns) operation.textContent = `ans = ${screen.textContent}`
@@ -22,15 +21,17 @@ function appendNumber(e) {
   if (e.target.dataset.number === '0' && screen.textContent === '0') return
   if (isResetScreen) resetScreen()
   screen.textContent += e.target.dataset.number
-
-  toggleAc(false)
+  clearButton.toggleState(false)
 }
 
 function appendDecimal() {
   if (screen.textContent.includes('.')) return
+  if (isSaveAns) {
+    resetScreen()
+    screen.textContent = '0'
+  }
   screen.textContent += '.'
-
-  toggleAc(false)
+  clearButton.toggleState(false)
   isResetScreen = false
 }
 
@@ -45,49 +46,60 @@ function useAc() {
   isSaveAns = false
   isResetScreen = true
   if (firstOperand) {
-    toggleAc(false)
+    clearButton.toggleState(false)
   }
 }
 
 function useCe() {
   if (screen.textContent.length === 1 || screen.textContent === '0.') {
     screen.textContent = '0'
-    toggleAc(true)
+    clearButton.toggleState(true)
     isResetScreen = true
     return
   }
-
   screen.textContent = screen.textContent.slice(0, -1)
 }
 
 function setOperator(e) {
-  if (operator) handleEqual()
-
-  firstOperand = screen.textContent
+  if (operator && !isResetScreen) handleEqual()
+  if (!firstOperand) firstOperand = screen.textContent
   operator = e.target.dataset.operator
   operation.textContent = `${firstOperand} ${operator}`
   screen.textContent = '0'
-  toggleAc(true)
+  clearButton.toggleState(true)
   isSaveAns = false
   isResetScreen = true
 }
 
 function handleEqual() {
   if (!operator) return
-
   operation.textContent = `${firstOperand} ${operator} ${screen.textContent} =`
-  screen.textContent = round(operate(firstOperand, operator, screen.textContent))
+  if ((operator === '÷' && screen.textContent === '0') || screen.textContent === '0.') {
+    screen.textContent = 'what'
+  } else {
+    screen.textContent = round(operate(firstOperand, operator, screen.textContent))
+  }
   firstOperand = ''
   operator = ''
-  toggleAc(true)
+  clearButton.toggleState(true)
   isSaveAns = true
   isResetScreen = true
 }
 
-const toggleAc = (ac) => {
-  clear_button.dataset.clear = ac ? 'ac' : 'ce'
-  clear_button.textContent = ac ? 'ac' : 'ce'
-  isAc = ac
+const clearButton = {
+  state: 'ac',
+  toggleState(ac) {
+    this.state = ac ? 'ac' : 'ce'
+    this.updateButton()
+  },
+  updateButton() {
+    clear_button.dataset.clear = this.state === 'ac' ? 'ac' : 'ce'
+    clear_button.textContent = this.state === 'ac' ? 'ac' : 'ce'
+  },
+  useCurrState() {
+    if (this.state === 'ac') useAc()
+    if (this.state === 'ce') useCe()
+  },
 }
 
 function round(n) {
@@ -108,15 +120,8 @@ const operand = {
   '÷': (n1, n2) => n1 / n2,
 }
 
-number_buttons.forEach((button) => {
-  button.addEventListener('mousedown', appendNumber)
-})
-operator_buttons.forEach((button) => {
-  button.addEventListener('mousedown', setOperator)
-})
+operator_buttons.forEach((btn) => btn.addEventListener('mousedown', setOperator))
+number_buttons.forEach((btn) => btn.addEventListener('mousedown', appendNumber))
+clear_button.addEventListener('mousedown', () => clearButton.useCurrState())
 decimal_button.addEventListener('mousedown', appendDecimal)
 equal_button.addEventListener('mousedown', handleEqual)
-clear_button.addEventListener('mousedown', () => {
-  if (isAc) useAc()
-  else useCe()
-})

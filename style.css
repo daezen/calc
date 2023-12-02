@@ -12,6 +12,18 @@
   --gray-900: #0C0E10;
 }
 
+/* .light-mode {
+  --gray-100: #0C0E10;
+  --gray-200: #1D2226;
+  --gray-300: #2E3438;
+  --gray-400: #465058;
+  --gray-500: #7D8A93;
+  --gray-600: #9EA6AC;
+  --gray-700: #AFB5B9;
+  --gray-800: #BAC0C3;
+  --gray-900: #C9CACB;
+} */
+
 * {
   margin: 0;
   padding: 0;
@@ -32,15 +44,15 @@ body {
   gap: .5em;
 
   color: var(--gray-100);
-  background: linear-gradient(45deg, var(--gray-900) 10%, var(--gray-800) 100%);
+  background: linear-gradient(45deg, var(--gray-900) 10%, var(--gray-700) 100%);
 }
 
 main {
   width: clamp(320px, 95vmin, 380px);
 
   border-radius: 24px;
-  border: 2px solid var(--gray-800);
-  box-shadow: 0 75px 75px -75px var(--gray-900);
+  border: 2px solid var(--gray-700);
+  box-shadow: 0 75px 75px -50px var(--gray-900);
 }
 
 section {
@@ -86,7 +98,7 @@ button:hover {
 }
 
 button:active {
-  filter: brightness(125%);
+  filter: invert(1)
 }
 
 .equal {
