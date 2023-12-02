@@ -120,8 +120,8 @@ const operand = {
   '÷': (n1, n2) => n1 / n2,
 }
 
-operator_buttons.forEach((btn) => btn.addEventListener('mousedown', setOperator))
-number_buttons.forEach((btn) => btn.addEventListener('mousedown', appendNumber))
-clear_button.addEventListener('mousedown', () => clearButton.useCurrState())
-decimal_button.addEventListener('mousedown', appendDecimal)
-equal_button.addEventListener('mousedown', handleEqual)
+operator_buttons.forEach((btn) => btn.addEventListener('click', setOperator))
+number_buttons.forEach((btn) => btn.addEventListener('click', appendNumber))
+clear_button.addEventListener('click', () => clearButton.useCurrState())
+decimal_button.addEventListener('click', appendDecimal)
+equal_button.addEventListener('click', handleEqual)
