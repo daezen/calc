@@ -88,6 +88,7 @@ function handleEqual() {
 
 const clearButton = {
   state: 'ac',
+  
   toggleState(ac) {
     this.state = ac ? 'ac' : 'ce'
     this.updateButton()
