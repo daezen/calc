@@ -20,14 +20,13 @@ function resetScreen() {
 function appendNumber(e) {
   if (e.target.dataset.number === '0' && screen.textContent === '0') return
   if (isResetScreen) resetScreen()
-  screen.textContent += e.target.dataset.number
+  if (screen.textContent.length < 7) screen.textContent += e.target.dataset.number
   clearButton.toggleState(false)
 }
 
 function appendDecimal() {
   if (screen.textContent.includes('.')) return
   if (isSaveAns) {
-    resetScreen()
     screen.textContent = '0'
   }
   screen.textContent += '.'
@@ -38,6 +37,7 @@ function appendDecimal() {
 function useAc() {
   if (isSaveAns) operation.textContent = `ans = ${screen.textContent}`
   else {
+    resetScreen()
     operation.textContent = ''
   }
   screen.textContent = '0'
@@ -62,6 +62,7 @@ function useCe() {
 
 function setOperator(e) {
   if (operator && !isResetScreen) handleEqual()
+  if (screen.textContent === '😎') screen.textContent = '0'
   if (!firstOperand) firstOperand = screen.textContent
   operator = e.target.dataset.operator
   operation.textContent = `${firstOperand} ${operator}`
@@ -75,9 +76,12 @@ function handleEqual() {
   if (!operator) return
   operation.textContent = `${firstOperand} ${operator} ${screen.textContent} =`
   if ((operator === '÷' && screen.textContent === '0') || screen.textContent === '0.') {
-    screen.textContent = 'what'
+    screen.textContent = '😎'
   } else {
-    screen.textContent = round(operate(firstOperand, operator, screen.textContent))
+    let length = String(operate(firstOperand, operator, screen.textContent)).length
+    let result = operate(firstOperand, operator, screen.textContent)
+    if (length > 7) result = round(result)
+    screen.textContent = result
   }
   firstOperand = ''
   operator = ''
@@ -88,7 +92,7 @@ function handleEqual() {
 
 const clearButton = {
   state: 'ac',
-  
+
   toggleState(ac) {
     this.state = ac ? 'ac' : 'ce'
     this.updateButton()
@@ -104,13 +108,12 @@ const clearButton = {
 }
 
 function round(n) {
-  return Math.round(n * 100) / 100
+  return Math.round(n * 1000000) / 1000000
 }
 
 function operate(n1, operator, n2) {
   n1 = Number(n1)
   n2 = Number(n2)
-
   return operand[operator](n1, n2)
 }
 
@@ -121,8 +124,8 @@ const operand = {
   '÷': (n1, n2) => n1 / n2,
 }
 
-operator_buttons.forEach((btn) => btn.addEventListener('click', setOperator))
-number_buttons.forEach((btn) => btn.addEventListener('click', appendNumber))
+operator_buttons.forEach(btn => btn.addEventListener('click', setOperator))
+number_buttons.forEach(btn => btn.addEventListener('click', appendNumber))
 clear_button.addEventListener('click', () => clearButton.useCurrState())
 decimal_button.addEventListener('click', appendDecimal)
 equal_button.addEventListener('click', handleEqual)
